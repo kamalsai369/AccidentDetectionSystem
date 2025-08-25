@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Accident Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>AI Accident Detection</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-predictions">0</span>
+                        <span class="stat-label">Total Scans</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="accidents-detected">0</span>
+                        <span class="stat-label">Incidents</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="accuracy-rate">0%</span>
+                        <span class="stat-label">Accuracy</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="upload">
+                <i class="fas fa-upload"></i>
+                Image Upload
+            </button>
+            <button class="tab-btn" data-tab="camera">
+                <i class="fas fa-camera"></i>
+                Live Camera
+            </button>
+            <button class="tab-btn" data-tab="history">
+                <i class="fas fa-history"></i>
+                Detection History
+            </button>
+            <button class="tab-btn" data-tab="analytics">
+                <i class="fas fa-chart-bar"></i>
+                Analytics
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Tab -->
+            <div class="tab-content active" id="upload-tab">
+                <div class="upload-section">
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Upload Image for Analysis</h3>
+                        <p>Drag and drop an image or click to browse</p>
+                        <input type="file" id="file-input" accept="image/*" style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                            Choose File
+                        </button>
+                    </div>
+                    
+                    <div class="image-preview" id="image-preview" style="display: none;">
+                        <img id="preview-img" alt="Preview">
+                        <div class="preview-actions">
+                            <button class="btn-primary" id="analyze-btn">
+                                <i class="fas fa-search"></i>
+                                Analyze Image
+                            </button>
+                            <button class="btn-secondary" id="clear-btn">
+                                <i class="fas fa-times"></i>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section" id="results-section" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3>Analysis Results</h3>
+                            <div class="result-status" id="result-status"></div>
+                        </div>
+                        <div class="result-content">
+                            <div class="confidence-meter">
+                                <div class="meter-label">Confidence Level</div>
+                                <div class="meter-bar">
+                                    <div class="meter-fill" id="confidence-fill"></div>
+                                </div>
+                                <div class="meter-value" id="confidence-value">0%</div>
+                            </div>
+                            <div class="prediction-details">
+                                <div class="detail-item">
+                                    <span class="label">Classification:</span>
+                                    <span class="value" id="classification">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Processing Time:</span>
+                                    <span class="value" id="processing-time">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Timestamp:</span>
+                                    <span class="value" id="timestamp">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="probability-chart">
+                        <h4>Probability Distribution</h4>
+                        <div class="chart-container">
+                            <div class="chart-bar accident-bar">
+                                <div class="bar-fill" id="accident-prob"></div>
+                                <div class="bar-label">Accident</div>
+                                <div class="bar-value" id="accident-value">0%</div>
+                            </div>
+                            <div class="chart-bar no-accident-bar">
+                                <div class="bar-fill" id="no-accident-prob"></div>
+                                <div class="bar-label">No Accident</div>
+                                <div class="bar-value" id="no-accident-value">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Camera Tab -->
+            <div class="tab-content" id="camera-tab">
+                <div class="camera-section">
+                    <div class="camera-container">
+                        <video id="camera-video" autoplay playsinline></video>
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                        <div class="camera-overlay">
+                            <div class="detection-status" id="detection-status">
+                                <i class="fas fa-shield-alt"></i>
+                                Monitoring...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-controls">
+                        <button class="btn-primary" id="start-camera">
+                            <i class="fas fa-play"></i>
+                            Start Camera
+                        </button>
+                        <button class="btn-secondary" id="stop-camera" style="display: none;">
+                            <i class="fas fa-stop"></i>
+                            Stop Camera
+                        </button>
+                        <button class="btn-secondary" id="capture-photo">
+                            <i class="fas fa-camera"></i>
+                            Capture & Analyze
+                        </button>
+                        <div class="auto-detect-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="auto-detect">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span>Auto Detection</span>
+                        </div>
+                    </div>
+                    
+                    <div class="live-results" id="live-results" style="display: none;">
+                        <div class="live-status">
+                            <div class="status-indicator" id="live-indicator"></div>
+                            <span id="live-classification">Analyzing...</span>
+                            <span class="live-confidence" id="live-confidence">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-content" id="history-tab">
+                <div class="history-section">
+                    <div class="history-header">
+                        <h3>Detection History</h3>
+                        <div class="history-actions">
+                            <button class="btn-secondary" id="refresh-history">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn-danger" id="clear-history">
+                                <i class="fas fa-trash"></i>
+                                Clear History
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="history-filters">
+                        <select id="filter-type">
+                            <option value="all">All Detections</option>
+                            <option value="accident">Accidents Only</option>
+                            <option value="no_accident">No Accidents Only</option>
+                        </select>
+                        <select id="sort-order">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="confidence">Highest Confidence</option>
+                        </select>
+                    </div>
+                    
+                    <div class="history-list" id="history-list">
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <p>No detection history available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-content" id="analytics-tab">
+                <div class="analytics-section">
+                    <div class="analytics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value" id="total-incidents">0</div>
+                                <div class="metric-label">Total Incidents</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value" id="safe-detections">0</div>
+                                <div class="metric-label">Safe Detections</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value" id="avg-confidence">0%</div>
+                                <div class="metric-label">Avg Confidence</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value" id="avg-processing">0ms</div>
+                                <div class="metric-label">Avg Processing</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <div class="chart-card">
+                            <h4>Detection Timeline</h4>
+                            <div class="timeline-chart" id="timeline-chart">
+                                <div class="chart-placeholder">
+                                    <i class="fas fa-chart-line"></i>
+                                    <p>No data available for timeline</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h4>Confidence Distribution</h4>
+                            <div class="confidence-distribution" id="confidence-distribution">
+                                <div class="chart-placeholder">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <p>No data available for distribution</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Analyzing image...</p>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
