@@ -128,6 +128,9 @@ dmypy.json
 *.pkl
 *.pickle
 
+# Large TensorFlow models (for Vercel deployment)
+final_accident_detection_model.h5
+
 # Dataset folders
 accident_dataset/
 data/

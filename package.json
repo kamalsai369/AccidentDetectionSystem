@@ -1,0 +1,22 @@
+{
+  "name": "accident-detection-system",
+  "version": "1.0.0",
+  "description": "AI-powered accident detection system with real-time analysis",
+  "scripts": {
+    "dev": "python app.py",
+    "start": "python api/index.py"
+  },
+  "keywords": [
+    "machine-learning",
+    "computer-vision",
+    "accident-detection",
+    "flask",
+    "tensorflow",
+    "web-application"
+  ],
+  "author": "Kamal Sai",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.x"
+  }
+}
